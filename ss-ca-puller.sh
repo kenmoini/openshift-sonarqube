@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 
-# This script pulls in SSL Certificates and spits em into the certificate store for Java
+## This script pulls in SSL Certificates and spits em into the certificate store for Java
 
 set -e
-# set -x	## Uncomment for debugging
+## set -x	## Uncomment for debugging
 
 for CERT in \
   www.kenmoini.com:443 \
   idm.fiercesw.network:636
 do
   echo "Pulling SSL certificate for ${CERT}..."
-  #FILENAME=$(echo $CERT |cut -f1 -d":")
   FILENAME=${CERT//":"/".p"}
   CERTNAME=${FILENAME//"."/"-"}
   echo "Q" | openssl s_client -connect ${CERT} 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/$FILENAME.pem

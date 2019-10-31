@@ -5,14 +5,14 @@ set -e
 
 printf 'Downloading plugin details\n'
 
-#sleep 20
+# sleep 20
 
 curl -L -sS -o /tmp/pluginList.txt https://update.sonarsource.org/update-center.properties
 printf "Downloading additional plugins\n"
 for PLUGIN in "$@"
 do
 	printf '\tExtracting plugin download location - %s\n' ${PLUGIN}
-	#MATCH_STRING=$(cat /tmp/pluginList.txt | grep requiredSonarVersions | grep "[=,]7\.9\(\.1\)\?" | sed 's@\.requiredSonarVersions.*@@g' | sort -V | grep "^${PLUGIN}\." | tail -n 1 | sed 's@$@.downloadUrl@g')
+	## MATCH_STRING=$(cat /tmp/pluginList.txt | grep requiredSonarVersions | grep "[=,]7\.9\(\.1\)\?" | sed 's@\.requiredSonarVersions.*@@g' | sort -V | grep "^${PLUGIN}\." | tail -n 1 | sed 's@$@.downloadUrl@g')
 	MATCH_STRING=$(cat /tmp/pluginList.txt | grep requiredSonarVersions | grep "[=,]7\.7\?" | sed 's@\.requiredSonarVersions.*@@g' | sort -V | grep "^${PLUGIN}\." | tail -n 1 | sed 's@$@.downloadUrl@g')
 
     echo $MATCH_STRING
