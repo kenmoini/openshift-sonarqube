@@ -20,7 +20,7 @@ JavaX doesn't accept self-signed certificates when using LDAPS connectivity.  In
 
 To do this, there is a script, ```ss-ca-puller.sh```, that will loop through a list of hosts, connect and retrieve their SSL certificate, then add it to the JRE keystore.
 
-To add your own self-signed SSL certificates to the keystore you will need to modify the domain list in this Bash script and build the Docker image yourself - I do so everytime I use this for a workshop because the LDAP/RH IDM server is ephemeral and certificates change from workshop to workshop.
+To add your own self-signed SSL certificates to the keystore you will need to modify the domain list in this Dockerfile and build the Docker image yourself - I do so everytime I use this for a workshop because the LDAP/RH IDM server is ephemeral and certificates change from workshop to workshop.
 
 ## Deployment - Automated
 
