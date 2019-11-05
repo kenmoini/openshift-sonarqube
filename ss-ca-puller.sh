@@ -5,6 +5,15 @@
 set -e
 ## set -x	## Uncomment for debugging
 
+function testCert() {
+  set +e
+  (keytool -list -storepass changeit -keystore $1 -alias $2 2>&1 > /dev/null)
+  if [[ $? -eq 0 ]]; then
+    return 42
+  fi
+  set -e
+}
+
 echo ""
 echo -e "Starting SSL Certificate import...\n"
 
@@ -14,10 +23,9 @@ do
   FILENAME=${CERT//":"/".p"}
   CERTNAME=${FILENAME//"."/"-"}
   echo "Q" | openssl s_client -connect ${CERT} 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/$FILENAME.pem
-  
   echo "Importing certificate to keystore..."
-  keytool -list -storepass changeit -keystore $JAVA_HOME/jre/lib/security/cacerts -alias $CERTNAME
-  if [ $? -eq 0 ]; then
+  testCert $JAVA_HOME/jre/lib/security/cacerts $CERTNAME
+  if [ $? -eq 42 ]; then
     echo "Certificate already exists, skipping..."
   else
     echo "Certificate not in keystore, importing..."
@@ -25,3 +33,5 @@ do
   fi
   echo ""
 done
+
+echo -e "Finished importing certificates!\n"
