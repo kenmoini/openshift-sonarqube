@@ -3,10 +3,16 @@
 ## Default variables to use
 export INTERACTIVE=${INTERACTIVE:="true"}
 export OCP_HOST=${OCP_HOST:=""}
+## userpass or token
+export OCP_AUTH_TYPE=${OCP_AUTH_TYPE:="userpass"}
+export OCP_AUTH=${OCP_AUTH:=""}
+export OCP_USERNAME=${OCP_USERNAME:=""}
+export OCP_PASSWORD=${OCP_PASSWORD:=""}
+export OCP_TOKEN=${OCP_TOKEN:=""}
+
 export OCP_CREATE_PROJECT=${OCP_CREATE_PROJECT:="true"}
 export OCP_PROJECT_NAME=${OCP_PROJECT_NAME:="cicd-sonarqube"}
-export OCP_USERNAME=${ADMIN_USERNAME:=""}
-export OCP_PASSWORD=${ADMIN_PASSWORD:=""}
+
 export PERSIST_DATA=${PERSIST_DATA:="true"}
 
 export POSTGRES_PERSISTENT_VOLUME_CLAIM_SIZE=${POSTGRES_PERSISTENT_VOLUME_CLAIM_SIZE:="10Gi"}
@@ -42,16 +48,38 @@ if [ "$INTERACTIVE" = "true" ]; then
 		export OCP_HOST="$choice";
 	fi
 
-	read -rp "OpenShift Username: ($OCP_USERNAME): " choice;
+	read -rp "OpenShift Auth Type [userpass or token]: ($OCP_AUTH_TYPE): " choice;
 	if [ "$choice" != "" ] ; then
-		export OCP_USERNAME="$choice";
+		export OCP_AUTH_TYPE="$choice";
 	fi
 
-	read -rsp "OpenShift Password: ($OCP_PASSWORD): " choice;
-	if [ "$choice" != "" ] ; then
-		export OCP_PASSWORD="$choice";
-	fi
-    echo -e ""
+    if [ $OCP_AUTH_TYPE == "userpass" ]; true
+
+        read -rp "OpenShift Username: ($OCP_USERNAME): " choice;
+        if [ "$choice" != "" ] ; then
+            export OCP_USERNAME="$choice";
+        fi
+
+        read -rsp "OpenShift Password: " choice;
+        if [ "$choice" != "" ] ; then
+            export OCP_PASSWORD="$choice";
+        fi
+        echo -e ""
+
+        OCP_AUTH="-u $OCP_USERNAME -p $OCP_PASSWORD"
+
+    fi
+
+    if [ $OCP_AUTH_TYPE == "token" ]; true
+
+        read -rp "OpenShift Token: ($OCP_TOKEN): " choice;
+        if [ "$choice" != "" ] ; then
+            export OCP_TOKEN="$choice";
+        fi
+
+        OCP_AUTH="--token=$OCP_TOKEN"
+
+    fi
 
 	read -rp "Create OpenShift Project? (true/false) ($OCP_CREATE_PROJECT): " choice;
 	if [ "$choice" != "" ] ; then
@@ -197,7 +225,7 @@ if [ "$INTERACTIVE" = "true" ]; then
 fi
 
 echo "Log in to OpenShift..."
-oc login $OCP_HOST -u $OCP_USERNAME -p $OCP_PASSWORD
+oc login $OCP_HOST $OCP_AUTH
 
 echo "Create/Set Project..."
 if [ "$OCP_CREATE_PROJECT" = "true" ]; then
