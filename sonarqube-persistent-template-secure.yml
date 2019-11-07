@@ -28,7 +28,7 @@ objects:
   metadata:
     labels:
       app: sonarqube
-      template: postgresql-template
+      template: postgresql-persistent-template
     name: sonardb
   type: Opaque
 - apiVersion: v1
@@ -40,12 +40,23 @@ objects:
     name: sonar-ldap-bind-dn
   type: kubernetes.io/basic-auth
 - apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: sonarqube-data
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SONARQUBE_PERSISTENT_VOLUME_SIZE}
+  status: {}
+- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     generation: 1
     labels:
       app: sonarqube
-      template: postgresql-template
+      template: postgresql-persistent-template
     name: sonardb
   spec:
     replicas: 1
@@ -126,7 +137,8 @@ objects:
         terminationGracePeriodSeconds: 30
         volumes:
         - name: sonardb-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: sonardb
     test: false
     triggers:
     - imageChangeParams:
@@ -264,7 +276,8 @@ objects:
         terminationGracePeriodSeconds: 30
         volumes:
         - name: sonar-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: sonarqube-data
     test: false
     triggers:
     - imageChangeParams:
@@ -285,6 +298,8 @@ objects:
   spec:
     port:
       targetPort: 9000-tcp
+    tls:
+      termination: edge
     to:
       kind: Service
       name: sonarqube
@@ -297,7 +312,7 @@ objects:
       template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
     labels:
       app: sonarqube
-      template: postgresql-template
+      template: postgresql-persistent-template
     name: sonardb
   spec:
     ports:
@@ -329,6 +344,20 @@ objects:
     type: ClusterIP
   status:
     loadBalancer: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: sonarqube
+      template: postgresql-persistent-template
+    name: sonardb
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${POSTGRES_PERSISTENT_VOLUME_CLAIM_SIZE}
+  status: {}
 parameters:
   - description: Password for the Posgres Database to be used by Sonarqube
     displayName: Postgres password
@@ -347,6 +376,11 @@ parameters:
     name: POSTGRES_DATABASE_NAME
     value: sonar
     required: true
+  - description: Postgres Persistent volume claim size
+    displayName: Postgres Persistent volume claim size
+    name: POSTGRES_PERSISTENT_VOLUME_CLAIM_SIZE
+    value: 5Gi
+    required: true
   - description: Postgres Container Memory size limit
     displayName: Postgres Container Memory size limit
     name: POSTGRES_CONTAINER_MEMORY_SIZE_LIMIT
@@ -363,6 +397,11 @@ parameters:
     description: SonarQube Container CPU limit
     displayName: SonarQube Container CPU limit
     value: "2"
+  - name: SONARQUBE_PERSISTENT_VOLUME_SIZE
+    description: The persistent storage volume for SonarQube to use for plugins/config/logs/etc...
+    displayName: SonarQube Storage Space Size
+    required: true
+    value: 5Gi
   - name: FORCE_AUTHENTICATION
     displayName: Force authentication
     value: "false"

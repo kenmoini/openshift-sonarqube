@@ -11,7 +11,8 @@ ADD plugins.sh /opt/sonarqube/bin/plugins.sh
 
 CMD /opt/sonarqube/bin/run.sh
 
-RUN /opt/sonarqube/bin/ss-ca-puller.sh idm.fiercesw.network:636 www.kenmoini.com:443
+## Change this line for LDAPS
+RUN /opt/sonarqube/bin/ss-ca-puller.sh idm.fiercesw.network:636
 
 RUN cp -a /opt/sonarqube/data /opt/sonarqube/data-init && \
 	cp -a /opt/sonarqube/extensions /opt/sonarqube/extensions-init && \
