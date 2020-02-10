@@ -24,6 +24,8 @@ To do this, there is a script, ```ss-ca-puller.sh```, that will loop through a l
 
 To add your own self-signed SSL certificates to the keystore you will need to modify the domain list in this Dockerfile and build the Docker image yourself - I do so everytime I use this for a workshop because the LDAP/RH IDM server is ephemeral and certificates change from workshop to workshop.  Step-by-step instructions are below.
 
+***By default, the self-signed CA certificate from idm.fiercesw.network is pulled into this container image***
+
 ## Deployment - Automated
 
 The deployment script ```./deploy.sh``` can also take preset environmental variables to provision without prompting the user.  To do so, copy over the ```example.vars.sh``` file, set the variables, source and run the deployer.
