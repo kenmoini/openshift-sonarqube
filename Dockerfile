@@ -2,7 +2,10 @@ FROM sonarqube:10.6.0-community
 
 USER root
 
-RUN apt-get install ca-certificates -y
+RUN apt update \
+ && apt upgrade -y \
+ && apt-get install ca-certificates -y \
+ && apt autoremove -y
 
 ADD sonar.properties /opt/sonarqube/conf/sonar.properties
 ADD run.sh /opt/sonarqube/bin/run.sh
