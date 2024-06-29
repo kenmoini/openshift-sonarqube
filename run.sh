@@ -21,6 +21,6 @@ if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
 
-java -jar lib/sonar-application-7.7.jar \
+java -jar lib/sonar-application-10.6.0.92116.jar \
     -Dsonar.web.javaAdditionalOpts="${SONARQUBE_WEB_JVM_OPTS} -Djava.security.egd=file:/dev/./urandom" \
     "$@"
