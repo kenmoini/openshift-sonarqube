@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 ## This script pulls in SSL Certificates and spits em into the certificate store for Java
+# super duper handy...maybe
 
 set -e
 ## set -x	## Uncomment for debugging
